@@ -32,24 +32,39 @@ class RepoAnalysisPipeline:
         print(f"开始分析仓库: {repo_full_name}")
         print(f"{'='*60}\n")
 
-        # Step 1: Explore
+        # Step 1: Explore - 使用 LLM 分析
         print(f"[{repo_full_name}] Step 1/3: 探索仓库结构...")
-        explore_task = create_explore_task(self.explorer, repo_info)
-        # 模拟执行（实际使用时需要 Crew 引擎）
-        # explore_result = crew.kickoff()...
-        explore_result = f"探索完成: {repo_full_name}"
+        try:
+            explore_result = self.explorer.execute_task(
+                task=create_explore_task(self.explorer, repo_info)
+            )
+        except Exception as e:
+            print(f"  探索失败，使用默认描述: {e}")
+            explore_result = f"仓库 {repo_full_name} 是一个 GitHub 项目，主要用于 {repo_info.get('description', '未知目的')}"
 
-        # Step 2: Analyze
+        # Step 2: Analyze - 使用 LLM 分析
         print(f"[{repo_full_name}] Step 2/3: 技术深度分析...")
-        analyze_task = create_analyze_task(self.analyst, repo_info, explore_result)
-        analyze_result = f"分析完成: {repo_full_name}"
+        try:
+            analyze_result = self.analyst.execute_task(
+                task=create_analyze_task(self.analyst, repo_info, explore_result)
+            )
+        except Exception as e:
+            print(f"  分析失败，使用默认描述: {e}")
+            analyze_result = f"技术栈：{repo_info.get('language', '未知')} | Stars: {repo_info.get('stars', 0)}"
 
-        # Step 3: Write Report
+        # Step 3: Write Report - 使用 LLM 生成
         print(f"[{repo_full_name}] Step 3/3: 生成报告...")
-        write_task = create_write_task(self.writer, repo_info, explore_result, analyze_result)
+        try:
+            report_content = self.writer.execute_task(
+                task=create_write_task(self.writer, repo_info, explore_result, analyze_result)
+            )
+        except Exception as e:
+            print(f"  报告生成失败，使用模板: {e}")
+            report_content = None
 
-        # 生成报告文件
-        report_content = f"""# {repo_full_name} 技术调研报告
+        # 如果 LLM 生成失败，使用模板
+        if not report_content:
+            report_content = f"""# {repo_full_name} 技术调研报告
 
 > 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
