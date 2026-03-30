@@ -1,0 +1,6 @@
+services:
+  github-trending:
+    image: tomowang/github-trending
+    ports:
+      - "18000:3000"
+    restart: unless-stopped
