@@ -46,8 +46,15 @@ def publish_reports(reports_dir: str = None) -> list:
     # 查找所有 markdown 报告
     published = []
     for md_file in Path(reports_dir).glob("*.md"):
-        # 直接使用文件名，不加日期前缀
-        dest = date_folder / md_file.name
+        # 从文件名提取仓库名 (owner_repo_timestamp.md -> owner_repo.md)
+        # 文件名格式: HKUDS_OpenSpace_20260330_145831.md
+        name_parts = md_file.stem.rsplit('_', 2)  # 分离出时间戳
+        if len(name_parts) >= 3:
+            # 前两个是 owner_repo，最后两个是日期和时间
+            repo_name = '_'.join(name_parts[:-2])
+        else:
+            repo_name = md_file.stem
+        dest = date_folder / f"{repo_name}.md"
         shutil.copy2(md_file, dest)
         published.append(str(dest.relative_to(GARDEN_PATH)))
         print(f"  复制: {md_file.name} -> {dest.relative_to(GARDEN_PATH)}")
