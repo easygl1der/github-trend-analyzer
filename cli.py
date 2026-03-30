@@ -110,15 +110,15 @@ def main():
     )
     trending_parser.add_argument(
         "--since", "-s",
-        default="daily",
+        default="weekly",
         choices=["daily", "weekly", "monthly"],
-        help="时间范围"
+        help="时间范围 (默认: weekly)"
     )
     trending_parser.add_argument(
         "--limit", "-n",
         type=int,
-        default=10,
-        help="分析仓库数量"
+        default=5,
+        help="分析仓库数量 (默认: 5)"
     )
     trending_parser.add_argument(
         "--publish", "-p",

@@ -39,16 +39,18 @@ def publish_reports(reports_dir: str = None) -> list:
             "参考: https://github.com/jackyzha0/quartz"
         )
 
-    # 确保 content/trending 目录存在
-    os.makedirs(CONTENT_PATH, exist_ok=True)
+    # 确保 content/trending/{date} 目录存在
+    date_folder = Path(CONTENT_PATH) / today
+    os.makedirs(date_folder, exist_ok=True)
 
     # 查找所有 markdown 报告
     published = []
     for md_file in Path(reports_dir).glob("*.md"):
-        dest = Path(CONTENT_PATH) / f"{today}-{md_file.name}"
+        # 直接使用文件名，不加日期前缀
+        dest = date_folder / md_file.name
         shutil.copy2(md_file, dest)
-        published.append(dest.name)
-        print(f"  复制: {md_file.name} -> {dest.name}")
+        published.append(str(dest.relative_to(GARDEN_PATH)))
+        print(f"  复制: {md_file.name} -> {dest.relative_to(GARDEN_PATH)}")
 
     if not published:
         print("没有找到需要发布的报告")
