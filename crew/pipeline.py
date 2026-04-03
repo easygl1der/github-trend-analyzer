@@ -31,13 +31,16 @@ class RepoAnalysisPipeline:
             生成的报告文件路径
         """
         repo_full_name = repo_info.get("full_name", "unknown")
+        repo_owner = repo_info.get("owner", "")
+        repo_name = repo_info.get("repo", "")
         repo_description = repo_info.get("description", "")
         repo_url = repo_info.get("url", "")
         repo_language = repo_info.get("language", "")
         repo_stars = repo_info.get("stars", 0)
+        repo_today_stars = repo_info.get("today_stars", 0)
 
         print(f"\n{'='*60}")
-        print(f"CrewAI 开始分析仓库: {repo_full_name}")
+        print(f"CrewAI 开始分析仓库: {repo_full_name} (+{repo_today_stars} stars today)")
         print(f"{'='*60}\n")
 
         # 创建任务
@@ -73,18 +76,22 @@ class RepoAnalysisPipeline:
         result = crew.kickoff(inputs={
             "repo_info": repo_info,
             "repo_full_name": repo_full_name,
+            "repo_owner": repo_owner,
+            "repo_name": repo_name,
             "repo_description": repo_description,
             "repo_url": repo_url,
             "repo_language": repo_language,
             "repo_stars": repo_stars,
+            "repo_today_stars": repo_today_stars,
         })
 
         # 从结果中提取报告内容
         # CrewAI 的 kickoff 返回的是最终任务的结果
         report_content = self._extract_report(result, repo_info)
 
-        # 保存报告
-        filename = f"{repo_full_name.replace('/', '_')}.md"
+        # 保存报告，文件名只使用仓库名（不含 owner）
+        repo_name = repo_info.get("repo", repo_full_name.split('/')[-1])
+        filename = f"{repo_name}.md"
         filepath = os.path.join(REPORTS_DIR, filename)
 
         with open(filepath, "w", encoding="utf-8") as f:
@@ -96,10 +103,13 @@ class RepoAnalysisPipeline:
     def _extract_report(self, crew_result, repo_info: Dict) -> str:
         """从 Crew 执行结果中提取报告内容"""
         repo_full_name = repo_info.get("full_name", "unknown")
+        repo_owner = repo_info.get("owner", "")
+        repo_name = repo_info.get("repo", "")
         repo_description = repo_info.get("description", "")
         repo_url = repo_info.get("url", "")
         repo_language = repo_info.get("language", "")
         repo_stars = repo_info.get("stars", 0)
+        repo_today_stars = repo_info.get("today_stars", 0)
 
         # 如果有有效结果，尝试解析
         if crew_result:
@@ -109,17 +119,20 @@ class RepoAnalysisPipeline:
                 return result_str
 
         # 回退到默认报告格式
-        return f"""# {repo_full_name} 技术调研报告
+        return f"""# {repo_name} 技术调研报告
 
 > 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+> 作者: @{repo_owner} | 今日新增: ⭐+{repo_today_stars} | 总计: ⭐{repo_stars}
 > 分析引擎: CrewAI Multi-Agent
 
 ## 基本信息
 
-- **仓库名称**: {repo_full_name}
+- **仓库名称**: {repo_name}
+- **作者**: @{repo_owner}
 - **描述**: {repo_description}
 - **语言**: {repo_language}
-- **Stars**: {repo_stars}
+- **总 Stars**: {repo_stars}
+- **今日新增**: ⭐+{repo_today_stars}
 - **URL**: {repo_url}
 
 ## 分析说明

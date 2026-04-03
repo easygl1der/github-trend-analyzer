@@ -57,15 +57,24 @@ def create_analyze_task(agent, repo_info: dict, explore_result: str = "") -> Tas
 def create_write_task(agent, repo_info: dict, explore_result: str = "", analyze_result: str = "") -> Task:
     """创建报告撰写任务"""
     repo_full_name = repo_info.get("full_name", "")
+    repo_owner = repo_info.get("owner", "")
+    repo_name = repo_info.get("repo", "")
     repo_description = repo_info.get("description", "")
     repo_url = repo_info.get("url", "")
+    repo_language = repo_info.get("language", "")
+    repo_stars = repo_info.get("stars", 0)
+    repo_today_stars = repo_info.get("today_stars", 0)
 
     return Task(
-        description=f"""为 GitHub 仓库 {repo_full_name} 生成中文技术调研报告。
+        description=f"""为 GitHub 仓库 {repo_name} 生成中文技术调研报告。
 
 原始仓库信息：
-- 名称：{repo_full_name}
+- 仓库名：{repo_name}
+- 作者：@{repo_owner}
 - 描述：{repo_description}
+- 编程语言：{repo_language}
+- 总 Stars：{repo_stars}
+- 今日新增：⭐+{repo_today_stars}
 - URL：{repo_url}
 
 探索分析：
@@ -74,9 +83,11 @@ def create_write_task(agent, repo_info: dict, explore_result: str = "", analyze_
 技术分析：
 {analyze_result}
 
-请生成一份完整的 Markdown 格式报告，包含：
+请生成一份完整的 Markdown 格式报告，格式如下：
 
-# {repo_full_name} 技术调研报告
+# {repo_name} 技术调研报告
+
+> 作者: @{repo_owner} | 今日新增: ⭐+{repo_today_stars} | 总计: ⭐{repo_stars}
 
 ## 基本信息
 ## 项目简介
@@ -92,7 +103,8 @@ def create_write_task(agent, repo_info: dict, explore_result: str = "", analyze_
 - 使用中文撰写
 - 结构清晰、层次分明
 - 包含具体的代码或数据引用
-- 提供客观的评估和实用的建议""",
+- 提供客观的评估和实用的建议
+- 在报告头部清楚标注作者和今日新增 star 数量""",
         agent=agent,
         expected_output="一份完整的中文 Markdown 格式技术调研报告"
     )
