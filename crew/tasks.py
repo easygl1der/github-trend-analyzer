@@ -85,7 +85,7 @@ def create_write_task(agent, repo_info: dict, explore_result: str = "", analyze_
 
 请生成一份完整的 Markdown 格式报告，格式如下：
 
-# {repo_name} 技术调研报告
+# {repo_name} 技术调研报告（注意：标题只用仓库名，不含 owner，用户信息在下方标签中）
 
 > 作者: @{repo_owner} | 今日新增: ⭐+{repo_today_stars} | 总计: ⭐{repo_stars}
 
