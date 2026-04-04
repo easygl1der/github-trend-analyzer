@@ -7,12 +7,12 @@ import subprocess
 from datetime import date
 from pathlib import Path
 
-# Garden 仓库路径 (相对于当前项目)
+# Mintlify 文档仓库路径 (相对于当前项目)
 GARDEN_PATH = os.environ.get(
     "GARDEN_PATH",
-    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "github-trend-garden")
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "mintlify-docs")
 )
-CONTENT_PATH = os.path.join(GARDEN_PATH, "content", "trending")
+CONTENT_PATH = os.path.join(GARDEN_PATH, "trending")
 
 
 def publish_reports(reports_dir: str = None) -> list:
@@ -57,7 +57,7 @@ def publish_reports(reports_dir: str = None) -> list:
         return []
 
     # Git 操作
-    print(f"\n提交到 GitHub Trend Garden...")
+    print(f"\n提交到 Mintlify...")
 
     # Check git status first
     result = subprocess.run(
